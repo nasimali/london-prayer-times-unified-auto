@@ -116,7 +116,7 @@ Wrote .../data/london-prayer-times-7d.json (7 days)
 
 Workflow file: `.github/workflows/update-london-prayer-times.yml`
 
-- Runs on a cron schedule: `0 */6 * * *` (every 6 hours)
+- Runs on a cron schedule: '0 0 * * *' (every 24 hours at 12am)
 - Also supports manual runs via **workflow_dispatch**
 - Installs dependencies (`requests`, `ruff`)
 - Lints the repo with Ruff
