@@ -23,7 +23,11 @@ class PrayerGenerationError(RuntimeError):
 
 
 def _api_key() -> str:
-    return os.getenv("LONDON_PRAYER_TIMES_API_KEY", DEFAULT_API_KEY).strip()
+    value = os.getenv("LONDON_PRAYER_TIMES_API_KEY")
+    if value and value.strip():
+        return value.strip()
+
+    return DEFAULT_API_KEY
 
 
 def _fetch_year(year: int, api_key: str) -> dict[str, dict[str, str]]:
