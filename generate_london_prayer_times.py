@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 API_URL = "https://www.londonprayertimes.com/api/times/"
-DEFAULT_API_KEY = "''"
+DEFAULT_API_KEY = "2a99f189-6e3b-4015-8fb8-ff277642561d"
 LONDON_TZ = ZoneInfo("Europe/London")
 OUTPUT_PATH = Path(__file__).parent / "data" / "london-prayer-times-7d.json"
 REQUEST_TIMEOUT_SECONDS = 20
