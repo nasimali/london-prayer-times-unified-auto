@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Generate a London 7-day prayer timetable JSON from London Unified Prayer Times."""
+"""Generate a London 1-year prayer timetable JSON from London Unified Prayer Times."""
 
 from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -17,7 +17,7 @@ load_dotenv()
 
 API_URL = "https://www.londonprayertimes.com/api/times/"
 LONDON_TZ = ZoneInfo("Europe/London")
-OUTPUT_PATH = Path(__file__).parent / "data" / "london-prayer-times-7d.json"
+OUTPUT_PATH = Path(__file__).parent / "data" / "london-prayer-times-1yr.json"
 REQUEST_TIMEOUT_SECONDS = 20
 
 
@@ -73,18 +73,25 @@ def _normalise_day(date_key: str, raw: dict[str, str]) -> dict[str, str]:
 
 def main() -> None:
     now_london = datetime.now(LONDON_TZ)
-    today_london = now_london.date()
-    target_dates = [today_london + timedelta(days=offset) for offset in range(7)]
+    current_year = now_london.year
+
+    # Generate dates for the entire calendar year
+    start_date = date(current_year, 1, 1)
+    end_date = date(current_year, 12, 31)
 
     key = _api_key()
     if not key:
         raise PrayerGenerationError("Missing London Prayer Times API key")
 
-    years_needed = sorted({value.year for value in target_dates})
-    combined_times: dict[str, dict[str, str]] = {}
+    # Fetch the entire year's data
+    combined_times = _fetch_year(current_year, key)
 
-    for year in years_needed:
-        combined_times.update(_fetch_year(year, key))
+    # Generate list of all dates in the year
+    current = start_date
+    target_dates = []
+    while current <= end_date:
+        target_dates.append(current)
+        current += timedelta(days=1)
 
     days: list[dict[str, str]] = []
     missing_dates: list[str] = []
@@ -110,7 +117,9 @@ def main() -> None:
         },
         "timezone": "Europe/London",
         "generated_at": now_london.isoformat(),
-        "effective_today": today_london.isoformat(),
+        "year": current_year,
+        "start_date": start_date.isoformat(),
+        "end_date": end_date.isoformat(),
         "days_count": len(days),
         "days": days,
     }
